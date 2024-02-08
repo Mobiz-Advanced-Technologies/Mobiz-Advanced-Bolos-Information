@@ -1,79 +1,109 @@
 <!DOCTYPE html>
 <html>
-<body>
 
-<style>
-	#demo {
-    	background: #ff4500dd;
-        text-align: center;
-        padding: 15px;
-        border-radius: 17.5px 17.5px 0px 0px;
-        backdrop-filter: blur(10px);
-    } * {
-    	font-family: 'Comic sans MS';
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    } center {
-    	background: #ffffffbb;
-        aspect-ratio: 1/1;
-        display: flex;
-        justify-content: center;
-        place-items: center;
-        text-align: center;
-        border-radius: 0px 0px 5px 5px;
-        backdrop-filter: blur(10px);
-    } body {
-    	padding: 25px;
-        background: url('https://source.unsplash.com/1600x900/?landscape');
-        height: 100vh;
-        background-position: center;
-    } .calendar {
-        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25098);
-        border-radius: 17.5px 17.5px 5px 5px;
-        width: 40vw;
-        margin: auto;
-    }
-</style>
+<body id="body">
 
-<div class="calendar">
-	<h2 id="demo">...</h2>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/futura-font@1.0.0/styles.min.css">
+    <style>
+        #demo {
+            background: #ff4500dd;
+            text-align: center;
+            padding: 15px;
+            border-radius: 17.5px 17.5px 0px 0px;
+            backdrop-filter: blur(10px);
+        }
 
-    <center>
-        <div style="padding: 25px;">
-            <h2 id="eventMeter">No events today!</h2><br>
-            <h3 id="bolosMeter">You might not be able to bolos today, but no one will stop you.</h3>
-        </div>
-    </center>
-</div>
+        * {
+            font-family: FuturaBT-Medium;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-size: cover !important;
+            background-repeat: no-repeat !important;
+        }
 
-<script>
-const d = new Date();
-let month = d.getMonth() + 1;
-let year = d.getFullYear();
-let date = d.getDate();
+        center {
+            background: #ffffffbb;
+            aspect-ratio: 1/1;
+            display: flex;
+            justify-content: center;
+            place-items: center;
+            text-align: center;
+            border-radius: 0px 0px 5px 5px;
+            backdrop-filter: blur(10px);
+        }
 
-if (month < 10) {
-	month = "0" + month;
-}
+        body {
+            padding: 25px;
+            background: black;
+            height: 100vh;
+            background-position: center;
+            display: flex;
+        }
 
-document.getElementById("demo").innerHTML = (year + "-" + month + "-" + date);
+        .calendar {
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25098);
+            border-radius: 17.5px 17.5px 5px 5px;
+            width: 400px;
+            margin: auto;
+        }
 
-async function bolosOrNot() {
-	let fetchedData = await fetch('https://dayoffapi.vercel.app/api')
-    let data = await fetchedData.json()
-    
-    data.forEach(function (data) {
-    	if (data.tanggal == (year + "-" + month + "-" + date)) {
-        	document.getElementById("eventMeter").innerText = data.keterangan;
-        	if (data.is_cuti == true) {
-            	document.getElementById("bolosMeter").innerText = "You can bolos today!"
+        hr {
+            width: 100%;
+        }
+    </style>
+
+    <div class="calendar">
+        <h2 id="demo">...</h2>
+
+        <center>
+            <div style="padding: 25px;" id="inside">
+                <h1 id="dayname"></h1>
+                <br>
+                <h1 id="date">00</h1><br>
+                <hr><br>
+                <h3 id="eventMeter">No events today!</h3><br>
+                <h4 id="bolosMeter">You might not be able to bolos today, but no one will stop you.</h4>
+            </div>
+        </center>
+    </div>
+
+    <script defer>
+        const d = new Date();
+        let month = d.getMonth() + 1;
+        let year = d.getFullYear();
+        let date = d.getDate();
+
+        if (month < 10) {
+            month = "0" + month;
+        }
+
+        var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        document.getElementById("demo").innerHTML = d.toLocaleString('default', { month: 'long' }) + ' ' + year;
+        document.getElementById("date").innerText = date
+        document.getElementById("dayname").innerText = days[d.getDay()]
+
+        async function bolosOrNot() {
+            let fetchedData = await fetch('https://dayoffapi.vercel.app/api')
+            let data = await fetchedData.json()
+            let result = data.find(obj => obj.tanggal == (year + "-" + month + "-" + date))
+
+            if (result) {
+                var keteranganbg = 'url("https://source.unsplash.com/1600x900/?' + result.keterangan + '")'
+                document.getElementById("eventMeter").innerText = result.keterangan;
+                document.getElementById("bolosMeter").innerText = "You can bolos today!"
+                document.getElementById("body").style.backgroundImage = keteranganbg
+
+                if (result.is_cuti == true) {
+                    document.getElementById("bolosMeter").innerText = "You can bolos today! (Even better, hari cuti!)"
+                }
+            } else {
+                document.getElementById("body").style.backgroundImage = `url("https://source.unsplash.com/1600x900/?landscape")`
             }
         }
-    })
-}
-bolosOrNot()
-</script>
+        bolosOrNot()
+    </script>
 
 </body>
+
 </html>
